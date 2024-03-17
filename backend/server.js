@@ -32,10 +32,10 @@ const transporter = nodemailer.createTransport({
 });
 
 const db = mysql.createConnection({
-    host: 'sql206.epizy.com',
-    user: 'epiz_27814538',
-    password: '9MIlaBDG1B',
-    database: 'epiz_27814538_bimbacho'
+    host: 'sql311.epizy.com',
+    user: 'epiz_33430971',
+    password: 'GX313Sv7cvpV',
+    database: 'epiz_33430971_lagarto'
 })
 
 const multer = require('multer');
