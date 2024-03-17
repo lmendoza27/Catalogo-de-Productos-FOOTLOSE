@@ -25,3 +25,28 @@ Para configurar el proyecto, sigue estos pasos:
 cd backend
 npm install
 ```
+
+2. Navega a la carpeta del fronted:
+   
+```
+cd frontend
+npm install
+```
+### Ejecución del proyecto
+
+Para ejecutar el proyecto, sigue estos pasos:
+
+1. Inicia el servidor backend:
+
+```
+node server.js
+```
+
+2. Inicia el servidor frontend:
+
+```
+ng serve
+```
+
+
+
