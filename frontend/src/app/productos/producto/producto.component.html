@@ -1,0 +1,189 @@
+<button (click)="logout()" class="logout">Cerrar Sesión</button>
+
+<div *ngIf="productos.length > 0; else noProductos">
+  <h2>Catálogo de Productos</h2>
+
+<div class="divCatalogos">
+<div *ngIf="hasPermission('agregar'); else noPermissionsAgregar">
+ <button (click)="addProduct()" class="btnAgregar">Agregar Producto</button>
+</div>
+<ng-template #noPermissionsAgregar>
+</ng-template>
+
+<div *ngIf="hasPermission('roles'); else noPermissionsRoles">
+<button class="btnUsuarios">Gestionar Usuarios y Roles</button>
+</div>
+<ng-template #noPermissionsRoles>
+</ng-template>
+
+<div *ngIf="hasPermission('informe'); else noPermissionsInforme">
+<button (click)="descargarExcel()" class="btnExcel">Exportar en Excel</button>
+</div>
+<ng-template #noPermissionsInforme>
+</ng-template>
+
+<div *ngIf="hasPermission('agregar'); else noPermissionsAgregar">
+<input type="file" (change)="handleFileInput($event)">
+<button (click)="uploadFileToServer()" class="btnFile">Subir archivo</button>
+</div>
+
+<ng-template #noPermissionsAgregar>
+</ng-template>
+
+    <input type="text" [(ngModel)]="searchTerm" class="busqueda" placeholder="Buscar producto">
+
+</div>
+
+
+<div style="display: flex;" class="listadoFiltro">
+  <div style="flex: 1;">
+    <h3>Marcas:</h3>
+    <div *ngFor="let marca of listProducts.marcas">
+      <label>
+        <input type="checkbox" [(ngModel)]="selectedMarcas[marca.NombreMarca]" [value]="marca.NombreMarca">
+        {{ marca.NombreMarca }}
+      </label>
+    </div>
+  </div>
+  
+  <div style="flex: 1;">
+    <h3>Modelos:</h3>
+    <div *ngFor="let modelo of listProducts.modelos">
+      <label>
+        <input type="checkbox" [(ngModel)]="selectedModelos[modelo.NombreModelo]" [value]="modelo.NombreModelo">
+        {{ modelo.NombreModelo }}
+      </label>
+    </div>
+  </div>
+  
+  <div style="flex: 1;">
+    <h3>Colores:</h3>
+    <div *ngFor="let color of listProducts.colores">
+      <label>
+        <input type="checkbox" [(ngModel)]="selectedColores[color.NombreColor]" [value]="color.NombreColor">
+        {{ color.NombreColor }}
+      </label>
+    </div>
+  </div>
+  
+  <div style="flex: 1;">
+    <h3>Tallas:</h3>
+    <div *ngFor="let talla of listProducts.tallas">
+      <label>
+        <input type="checkbox" [(ngModel)]="selectedTallas[talla.NombreTalla]" [value]="talla.NombreTalla">
+        {{ talla.NombreTalla }}
+      </label>
+    </div>
+  </div>
+
+</div>
+
+
+<div *ngIf="hasPermission('ver'); else noPermissionVer">
+
+<!--
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Marca</th>
+        <th>Modelo</th>
+        <th>Color</th>
+        <th>Talla</th>
+        <th>Imagen</th>
+        <th>Precio Venta</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let producto of filteredProducts">
+        <td>{{ producto.idProducto }}</td>
+        <td>{{ producto.NombreProducto }}</td>
+        <td>{{ producto.NombreMarca }}</td>
+        <td>{{ producto.NombreModelo }}</td>
+        <td>{{ producto.NombreColor }}</td>
+        <td>{{ producto.NombreTalla }}</td>
+        <td><img src="http://localhost:8081/uploads/{{ producto.Imagen }}" alt="Imagen del producto" width="100"></td>
+        <td>{{ producto.PrecioVenta }}</td>
+        <td>
+        <div *ngIf="hasPermission('editar'); else noPermissionsEditar">
+          <button (click)="editProduct(producto.idProducto)">Editar</button>
+        </div>
+        <ng-template #noPermissionsEditar>
+        </ng-template>
+        <div *ngIf="hasPermission('eliminar'); else noPermissionsEliminar">
+          <button (click)="deleteProduct(producto.idProducto)">Eliminar</button>
+        </div>
+        <ng-template #noPermissionsEliminar>
+        </ng-template>
+
+        <button (click)="descargarFichaTecnica(producto.idProducto)">Ficha Técnica</button>
+
+        <div *ngIf="hasPermission('cotizar'); else noPermissionsCotizar">
+          <button (click)="editProduct2(producto.idProducto)">Cotizar Producto</button>
+        </div>
+        <ng-template #noPermissionsCotizar>
+        </ng-template>
+
+        </td>
+      </tr>
+    </tbody>
+  </table>
+-->
+
+<ul class="cards">
+  <li class="cards__item" *ngFor="let producto of filteredProducts">
+    <div class="card">
+      <img class="card__image" 
+           src="http://localhost:8081/uploads/{{ producto.Imagen }}" 
+           (error)="fallbackImage($event)"
+           alt="Imagen del producto">
+      <div class="card__content">
+      <div style="float: right;"><b> #{{ producto.idProducto }}</b></div>
+        <div class="card__title">{{ producto.NombreProducto }}</div>
+         <div *ngIf="hasPermission('comprar'); else noPermissionsComprar">
+          <button  class="btn btn--block comprar">Comprar a S/{{ producto.PrecioVenta }}</button>
+          </div>
+          <ng-template #noPermissionsComprar>
+          </ng-template>
+        <p class="card__text">
+        <p><b>Marca:</b> {{ producto.NombreMarca }}<p>
+        <p><b>Modelo:</b> {{ producto.NombreModelo }}<p>
+        <p><b>Color:</b> {{ producto.NombreColor }}<p>
+        <p><b>Talla:</b> {{ producto.NombreTalla }}<p>
+        </p>
+        <!--<button class="btn btn--block card__btn">Button</button>-->
+          <div *ngIf="hasPermission('editar'); else noPermissionsEditar">
+          <button class="btn btn--block" (click)="editProduct(producto.idProducto)">Editar</button>
+          </div>
+          <ng-template #noPermissionsEditar>
+          </ng-template>
+          <div *ngIf="hasPermission('eliminar'); else noPermissionsEliminar">
+          <button class="btn btn--block" (click)="deleteProduct(producto.idProducto)">Eliminar</button>
+          </div>
+          <ng-template #noPermissionsEliminar>
+          </ng-template>
+          <button class="btn btn--block" (click)="descargarFichaTecnica(producto.idProducto)">Ficha Técnica</button>
+          <div *ngIf="hasPermission('cotizar'); else noPermissionsCotizar">
+          <button  class="btn btn--block" (click)="editProduct2(producto.idProducto)">Cotizar Producto</button>
+          </div>
+          <ng-template #noPermissionsCotizar>
+          </ng-template>
+      </div>
+    </div>
+  </li>
+
+</ul>
+
+</div>
+</div>
+
+<ng-template #noPermissionVer>
+ <p>No tienes permisos para ver los productos.</p>
+</ng-template>
+
+<ng-template #noProductos>
+ <button (click)="addProduct()">Agregar Producto</button>
+  <p>No hay productos disponibles.</p>
+</ng-template>

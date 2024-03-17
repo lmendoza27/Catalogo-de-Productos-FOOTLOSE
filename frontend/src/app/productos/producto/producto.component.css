@@ -1,0 +1,261 @@
+@keyframes fadeIn {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
+  @-webkit-keyframes gradient{
+    0% {
+      background-position: 0 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+       background-position: 0% 50%;
+    }
+  }
+  @keyframes gradient{
+    0% {
+      background-position: 0 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+       background-position: 0% 50%;
+    }
+  }
+
+::ng-deep body {
+    /*background-color: #9d35cb;
+    font-family: Arial, sans-serif;
+    animation: fadeIn 3s ease; */
+    background: linear-gradient(62deg, #EE7752, #E73C7E, #23A6D5, #23D5AB);
+    font-family: Arial, sans-serif;
+    animation: gradient 15s ease infinite; 
+     background-size: 400% 400%;
+  }
+
+ .logout {
+    background-color: #d33741;
+    border: 2px solid white;
+    padding: 5px 25px;
+    color: white;
+    cursor: pointer;
+    float: right;
+ } 
+
+ h2{
+    color: white;
+    text-decoration: underline;
+ }
+
+ h3{
+    color: white;
+ }
+
+ label{
+    font-weight: bold;
+ }
+
+.contenedor1 {
+  position: relative;
+}
+
+ .divCatalogos{
+    background-color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    /* position: fixed; */
+    position: sticky;
+    top: 10px;
+    /*top: 0; 
+    left: 0; */
+    width: 99%;
+    box-sizing: border-box;
+    z-index: 999;
+ }
+
+ .listadoFiltro{
+  /* margin-top: 130px; */
+ }
+
+ .busqueda{
+    width: 100%;
+    margin-top: 10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+    padding-right: 0px;
+    font-size: 20px;
+    color: #d33741;
+ }
+
+ .busqueda:focus{
+    border: 2px solid #d33741;
+ }
+
+ .btnAgregar {
+    background-color: #37d356;
+    border: 2px solid black;
+    padding: 5px 25px;
+    color: black;
+    cursor: pointer;
+    font-weight: bold;
+    border-radius: 4px;
+ }
+
+ .btnUsuarios {
+    background-color: #3778d3;
+    border: 2px solid black;
+    padding: 5px 25px;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+    border-radius: 4px;
+ }
+
+ .btnExcel {
+    background-color: #e2852f;
+    border: 2px solid black;
+    padding: 5px 25px;
+    color: black;
+    cursor: pointer;
+    font-weight: bold;
+    border-radius: 4px;
+ }
+
+ .btnFile {
+    background-color: #aba7a2;
+    border: 2px solid black;
+    padding: 5px 25px;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+    border-radius: 4px;
+ }
+
+ .divCatalogos {
+    display: flex; /* Utiliza Flexbox */
+    flex-wrap: wrap; /* Permite que los elementos se envuelvan si no caben en una sola fila */
+    gap: 10px; /* Espacio entre los elementos */
+  }
+
+  /***************************************************/
+
+  
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+html {
+  background-color: #f0f0f0;
+}
+
+img {
+  height: auto;
+  max-width: 100%;
+  vertical-align: middle;
+}
+.btn {
+  background-color: white;
+  border: 1px solid #cccccc;
+  color: #696969;
+  padding: 0.5rem;
+  cursor: pointer;
+  font-weight: bold;
+  /* text-transform: lowercase; */
+}
+.btn--block {
+  display: block;
+  width: 100%;
+}
+.cards {
+  display: flex;
+  flex-wrap: wrap;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.cards__item {
+  display: flex;
+  padding: 1rem;
+}
+@media (min-width: 40rem) {
+  .cards__item {
+    width: 50%;
+  }
+}
+@media (min-width: 56rem) {
+  .cards__item {
+    width: 33.3333%;
+  }
+}
+.card {
+  background-color: white;
+  border-radius: 0.25rem;
+  box-shadow: 0 20px 40px -14px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.card:hover .card__image {
+  filter: contrast(100%);
+}
+.card__content {
+  /* display: flex; */
+  flex: 1 1 auto;
+  flex-direction: column;
+  padding: 1rem;
+}
+.card__image {
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  border-top-left-radius: 0.25rem;
+  border-top-right-radius: 0.25rem;
+  filter: contrast(70%);
+  overflow: hidden;
+  position: relative;
+  transition: filter 0.5s cubic-bezier(0.43, 0.41, 0.22, 0.91);
+  height: 200px;
+}
+.card__image::before {
+  content: "";
+  display: block;
+  padding-top: 56.25%;
+}
+@media (min-width: 40rem) {
+  .card__image::before {
+    padding-top: 66.6%;
+  }
+}
+
+.card__image--fence {
+  /* background-image: url(https://unsplash.it/800/600?image=59); */
+}
+.card__title {
+  color: #696969;
+  font-size: 1.25rem;
+  font-weight: bold;
+  letter-spacing: 0.8px;
+  text-decoration: underline;
+  /* text-transform: uppercase; */
+}
+.card__text {
+  /* flex: 1 1 auto; */
+  /* font-size: 0.875rem; */
+  /* line-height: 1.5; */
+  /* margin-bottom: 1.25rem; */
+}
+
+.comprar {
+    background-color: #12d708;
+}
+
+/*********************************************************/
