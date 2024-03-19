@@ -35,105 +35,57 @@
 </div>
 
 
-<div style="display: flex;" class="listadoFiltro">
+<div style="display: flex;">
   <div style="flex: 1;">
-    <h3>Marcas:</h3>
-    <div *ngFor="let marca of listProducts.marcas">
-      <label>
-        <input type="checkbox" [(ngModel)]="selectedMarcas[marca.NombreMarca]" [value]="marca.NombreMarca">
-        {{ marca.NombreMarca }}
-      </label>
-    </div>
-  </div>
-  
-  <div style="flex: 1;">
-    <h3>Modelos:</h3>
-    <div *ngFor="let modelo of listProducts.modelos">
-      <label>
-        <input type="checkbox" [(ngModel)]="selectedModelos[modelo.NombreModelo]" [value]="modelo.NombreModelo">
-        {{ modelo.NombreModelo }}
-      </label>
-    </div>
-  </div>
-  
-  <div style="flex: 1;">
-    <h3>Colores:</h3>
-    <div *ngFor="let color of listProducts.colores">
-      <label>
-        <input type="checkbox" [(ngModel)]="selectedColores[color.NombreColor]" [value]="color.NombreColor">
-        {{ color.NombreColor }}
-      </label>
-    </div>
-  </div>
-  
-  <div style="flex: 1;">
-    <h3>Tallas:</h3>
-    <div *ngFor="let talla of listProducts.tallas">
-      <label>
-        <input type="checkbox" [(ngModel)]="selectedTallas[talla.NombreTalla]" [value]="talla.NombreTalla">
-        {{ talla.NombreTalla }}
-      </label>
-    </div>
-  </div>
-
-</div>
-
-
-<div *ngIf="hasPermission('ver'); else noPermissionVer">
-
-<!--
-  <table>
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Nombre</th>
-        <th>Marca</th>
-        <th>Modelo</th>
-        <th>Color</th>
-        <th>Talla</th>
-        <th>Imagen</th>
-        <th>Precio Venta</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let producto of filteredProducts">
-        <td>{{ producto.idProducto }}</td>
-        <td>{{ producto.NombreProducto }}</td>
-        <td>{{ producto.NombreMarca }}</td>
-        <td>{{ producto.NombreModelo }}</td>
-        <td>{{ producto.NombreColor }}</td>
-        <td>{{ producto.NombreTalla }}</td>
-        <td><img src="http://localhost:8081/uploads/{{ producto.Imagen }}" alt="Imagen del producto" width="100"></td>
-        <td>{{ producto.PrecioVenta }}</td>
-        <td>
-        <div *ngIf="hasPermission('editar'); else noPermissionsEditar">
-          <button (click)="editProduct(producto.idProducto)">Editar</button>
+    <!-- Aquí va tu código de filtros -->
+    <div style="display: flex; flex-direction: column;" class="firstColumn">
+      <div>
+        <h3>Marcas:</h3>
+        <div *ngFor="let marca of listProducts.marcas">
+          <label>
+            <input type="checkbox" [(ngModel)]="selectedMarcas[marca.NombreMarca]" [value]="marca.NombreMarca">
+            {{ marca.NombreMarca }}
+          </label>
         </div>
-        <ng-template #noPermissionsEditar>
-        </ng-template>
-        <div *ngIf="hasPermission('eliminar'); else noPermissionsEliminar">
-          <button (click)="deleteProduct(producto.idProducto)">Eliminar</button>
+      </div>
+      
+      <div>
+        <h3>Modelos:</h3>
+        <div *ngFor="let modelo of listProducts.modelos">
+          <label>
+            <input type="checkbox" [(ngModel)]="selectedModelos[modelo.NombreModelo]" [value]="modelo.NombreModelo">
+            {{ modelo.NombreModelo }}
+          </label>
         </div>
-        <ng-template #noPermissionsEliminar>
-        </ng-template>
-
-        <button (click)="descargarFichaTecnica(producto.idProducto)">Ficha Técnica</button>
-
-        <div *ngIf="hasPermission('cotizar'); else noPermissionsCotizar">
-          <button (click)="editProduct2(producto.idProducto)">Cotizar Producto</button>
+      </div>
+      
+      <div>
+        <h3>Colores:</h3>
+        <div *ngFor="let color of listProducts.colores">
+          <label>
+            <input type="checkbox" [(ngModel)]="selectedColores[color.NombreColor]" [value]="color.NombreColor">
+            {{ color.NombreColor }}
+          </label>
         </div>
-        <ng-template #noPermissionsCotizar>
-        </ng-template>
+      </div>
+      
+      <div>
+        <h3>Tallas:</h3>
+        <div *ngFor="let talla of listProducts.tallas">
+          <label>
+            <input type="checkbox" [(ngModel)]="selectedTallas[talla.NombreTalla]" [value]="talla.NombreTalla">
+            {{ talla.NombreTalla }}
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
 
-        </td>
-      </tr>
-    </tbody>
-  </table>
--->
-
-<ul class="cards">
-  <li class="cards__item" *ngFor="let producto of filteredProducts">
+  <div style="flex: 4;">
+    <!-- Aquí va tu lista de productos -->
+    <div *ngIf="hasPermission('ver'); else noPermissionVer">
+      <ul class="cards">
+          <li class="cards__item" *ngFor="let producto of filteredProducts">
     <div class="card">
       <img class="card__image" 
            src="http://localhost:8081/uploads/{{ producto.Imagen }}" 
@@ -173,10 +125,12 @@
       </div>
     </div>
   </li>
-
-</ul>
-
+      </ul>
+    </div>
+  </div>
 </div>
+
+
 </div>
 
 <ng-template #noPermissionVer>
