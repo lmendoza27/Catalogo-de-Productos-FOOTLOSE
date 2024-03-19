@@ -23,6 +23,9 @@ export class ProductoComponent implements OnInit {
 
   fileToUpload: File | null = null;
 
+  //private serverUrl = 'http://localhost:8081';
+  public serverUrl = 'https://catalogo-de-productos-footlose.onrender.com';
+
   constructor(private productService: ProductService, private router: Router) {
     const permissionsString = localStorage.getItem('permissions');
     if (permissionsString) {
@@ -208,7 +211,7 @@ export class ProductoComponent implements OnInit {
                 </select>
               </div>
               <div>
-                <img src="http://localhost:8081/uploads/${ data.Imagen }" alt="Imagen del producto" width="100">
+                <img src="${ this.serverUrl }/uploads/${ data.Imagen }" alt="Imagen del producto" width="100">
                 <br><label for="nombre">Imagen Producto:</label>
                 <input type="file" id="product_image" class="swal2-input">
               </div>
@@ -505,7 +508,11 @@ export class ProductoComponent implements OnInit {
   }
 
   fallbackImage(event: any) {
-    event.target.src = 'http://localhost:8081/uploads/no-image.jpg';
+    event.target.src = `${this.serverUrl}/uploads/no-image.jpg`;
+  }
+
+  setServerUrl(url: string) {
+    this.serverUrl = url; // Método para establecer la URL del servidor
   }
 
 }

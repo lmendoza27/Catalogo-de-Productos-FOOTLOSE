@@ -88,7 +88,7 @@
           <li class="cards__item" *ngFor="let producto of filteredProducts">
     <div class="card">
       <img class="card__image" 
-           src="http://localhost:8081/uploads/{{ producto.Imagen }}" 
+           [src]="serverUrl + '/uploads/' + producto.Imagen"
            (error)="fallbackImage($event)"
            alt="Imagen del producto">
       <div class="card__content">

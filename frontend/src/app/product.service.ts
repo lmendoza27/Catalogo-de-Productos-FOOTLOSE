@@ -7,8 +7,9 @@ import { Observable } from 'rxjs';
 })
 export class ProductService {
 
-  private serverUrl = 'http://localhost:8081';
+  // private serverUrl = 'http://localhost:8081';
   // private serverUrl = 'https://310f-2001-1388-ae0-7600-5dc6-1450-162b-9748.ngrok-free.app';
+  private serverUrl = 'https://catalogo-de-productos-footlose.onrender.com';
 
   constructor(private http: HttpClient) { }
 
