@@ -32,10 +32,10 @@ const transporter = nodemailer.createTransport({
 });
 
 const db = mysql.createConnection({
-    host: 'sql311.epizy.com',
-    user: 'epiz_33430971',
-    password: 'GX313Sv7cvpV',
-    database: 'epiz_33430971_lagarto'
+    host: 'sql3.freemysqlhosting.net',
+    user: 'sql3692502',
+    password: 'B3n5sLruaB',
+    database: 'sql3692502'
 })
 
 const multer = require('multer');
@@ -80,11 +80,11 @@ app.post('/login', (req, res) => {
 
 app.get('/productos', (req, res) => {
     const sql = `SELECT p.idProducto, p.NombreProducto, m.NombreMarca, mo.NombreModelo, c.NombreColor, t.NombreTalla, p.Imagen, p.PrecioVenta
-                FROM Producto p
-                JOIN Marca m ON p.idMarca = m.idMarca
-                JOIN Modelo mo ON p.idModelo = mo.idModelo
-                JOIN Color c ON p.idColor = c.idColor
-                JOIN Talla t ON p.idTalla = t.idTalla
+                FROM producto p
+                JOIN marca m ON p.idMarca = m.idMarca
+                JOIN modelo mo ON p.idModelo = mo.idModelo
+                JOIN color c ON p.idColor = c.idColor
+                JOIN talla t ON p.idTalla = t.idTalla
                 ORDER BY p.idProducto DESC`;
 
     db.query(sql, (err, data) => {
@@ -92,17 +92,17 @@ app.get('/productos', (req, res) => {
             console.error(err);
             return res.status(500).json({ error: "Error al obtener los registros de productos" });
         }
-        
+
         return res.json(data);
     });
 });
 
 app.get('/detail_product', (req, res) => {
     const sql = {
-        marca: `SELECT idMarca, NombreMarca FROM Marca`,
-        modelo: `SELECT idModelo, NombreModelo FROM Modelo`,
-        color: `SELECT idColor, NombreColor FROM Color`,
-        talla: `SELECT idTalla, NombreTalla FROM Talla`
+        marca: `SELECT idMarca, NombreMarca FROM marca`,
+        modelo: `SELECT idModelo, NombreModelo FROM modelo`,
+        color: `SELECT idColor, NombreColor FROM color`,
+        talla: `SELECT idTalla, NombreTalla FROM talla`
     };
 
     const resultados = {};
@@ -153,7 +153,7 @@ app.post('/save_product', upload.single('imagen'), (req, res) => {
     }
 
     // Aquí puedes usar los datos del formulario y la imagen adjunta para guardar el producto en la base de datos
-    const sql = `INSERT INTO Producto (NombreProducto, idMarca, idModelo, idColor, idTalla, Imagen, PrecioVenta)
+    const sql = `INSERT INTO producto (NombreProducto, idMarca, idModelo, idColor, idTalla, Imagen, PrecioVenta)
                  VALUES (?, ?, ?, ?, ?, ?, ?)`;
 
     db.query(sql, [NombreProducto, idMarca, idModelo, idColor, idTalla, imagen.filename, PrecioVenta], (err, result) => {
@@ -177,7 +177,7 @@ app.post('/update_product', upload.single('imagen'), (req, res) => {
     }
 
     // Actualizar el producto en la base de datos
-    const sql = `UPDATE Producto 
+    const sql = `UPDATE producto 
                  SET NombreProducto=?, idMarca=?, idModelo=?, idColor=?, idTalla=?, PrecioVenta=?
                  ${imagen ? ', Imagen=?' : ''}
                  WHERE idProducto=?`;
@@ -221,7 +221,7 @@ app.delete('/producto/:id', (req, res) => {
         const nombreImagen = result[0].Imagen;
 
         // Consulta para eliminar el producto de la base de datos
-        const sqlEliminarProducto = 'DELETE FROM Producto WHERE idProducto = ?';
+        const sqlEliminarProducto = 'DELETE FROM producto WHERE idProducto = ?';
 
         // Ejecutar la consulta para eliminar el producto
         db.query(sqlEliminarProducto, [idProducto], (err, result) => {
@@ -252,11 +252,11 @@ app.get('/producto/:id', (req, res) => {
     const idProducto = req.params.id;
 
     const sql = `SELECT p.idProducto, p.NombreProducto, m.NombreMarca, mo.NombreModelo, c.NombreColor, t.NombreTalla, p.Imagen, p.PrecioVenta
-    FROM Producto p
-    JOIN Marca m ON p.idMarca = m.idMarca
-    JOIN Modelo mo ON p.idModelo = mo.idModelo
-    JOIN Color c ON p.idColor = c.idColor
-    JOIN Talla t ON p.idTalla = t.idTalla
+    FROM producto p
+    JOIN marca m ON p.idMarca = m.idMarca
+    JOIN modelo mo ON p.idModelo = mo.idModelo
+    JOIN color c ON p.idColor = c.idColor
+    JOIN talla t ON p.idTalla = t.idTalla
     WHERE idProducto = ?`;
 
     db.query(sql, [idProducto], (err, result) => {
@@ -277,11 +277,11 @@ app.get('/producto/:id', (req, res) => {
 
 app.get('/download_excel', (req, res) => {
     const sql = `SELECT p.idProducto, p.NombreProducto, m.NombreMarca, mo.NombreModelo, c.NombreColor, t.NombreTalla, p.Imagen, p.PrecioVenta
-                FROM Producto p
-                JOIN Marca m ON p.idMarca = m.idMarca
-                JOIN Modelo mo ON p.idModelo = mo.idModelo
-                JOIN Color c ON p.idColor = c.idColor
-                JOIN Talla t ON p.idTalla = t.idTalla`;
+                FROM producto p
+                JOIN marca m ON p.idMarca = m.idMarca
+                JOIN modelo mo ON p.idModelo = mo.idModelo
+                JOIN color c ON p.idColor = c.idColor
+                JOIN talla t ON p.idTalla = t.idTalla`;
 
     db.query(sql, (err, data) => {
         if (err) {
@@ -330,11 +330,11 @@ app.get('/ficha_tecnica/:id', (req, res) => {
     const idProducto = req.params.id;
 
     const sql = `SELECT p.idProducto, p.NombreProducto, m.NombreMarca, mo.NombreModelo, c.NombreColor, t.NombreTalla, p.Imagen, p.PrecioVenta
-    FROM Producto p
-    JOIN Marca m ON p.idMarca = m.idMarca
-    JOIN Modelo mo ON p.idModelo = mo.idModelo
-    JOIN Color c ON p.idColor = c.idColor
-    JOIN Talla t ON p.idTalla = t.idTalla
+    FROM producto p
+    JOIN marca m ON p.idMarca = m.idMarca
+    JOIN modelo mo ON p.idModelo = mo.idModelo
+    JOIN color c ON p.idColor = c.idColor
+    JOIN talla t ON p.idTalla = t.idTalla
     WHERE idProducto = ?`;
 
     db.query(sql, [idProducto], (err, result) => {
@@ -372,7 +372,7 @@ app.post('/quote_product', (req, res) => {
     const { idProducto, PrecioVenta, toPerson } = req.body;
 
     // Actualizar el precio del producto en la base de datos
-    const sql = `UPDATE Producto 
+    const sql = `UPDATE producto 
                  SET PrecioVenta=?
                  WHERE idProducto=?`;
 
@@ -429,7 +429,7 @@ app.post('/upload_products_excel', upload_post.single('file'), (req, res) => {
                 const PrecioVenta = row.getCell(7).value;
 
                 // Insertar los datos del producto en la base de datos
-                const sql = `INSERT INTO Producto (NombreProducto, idMarca, idModelo, idColor, idTalla, Imagen, PrecioVenta)
+                const sql = `INSERT INTO producto (NombreProducto, idMarca, idModelo, idColor, idTalla, Imagen, PrecioVenta)
                              VALUES (?, ?, ?, ?, ?, ?, ?)`;
                 const params = [NombreProducto, idMarca, idModelo, idColor, idTalla, Imagen, PrecioVenta];
 
