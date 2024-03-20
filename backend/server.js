@@ -8,7 +8,7 @@ const cors = require('cors');
 const Excel = require('exceljs'); 
 const PDFDocument = require('pdfkit');
 const nodemailer = require('nodemailer');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 app.use(cors());
@@ -34,14 +34,14 @@ const transporter = nodemailer.createTransport({
 });
 
 const db = mysql.createConnection({
-    //host: 'sql3.freemysqlhosting.net',
-    //user: 'sql3692502',
-    //password: 'B3n5sLruaB',
-    //database: 'sql3692502'
-    host: 'localhost',
-    user: 'root',
-    password: '',
-    database: 'catalog_products'
+    host: 'sql3.freemysqlhosting.net',
+    user: 'sql3692502',
+    password: 'B3n5sLruaB',
+    database: 'sql3692502'
+    // host: 'localhost',
+    // user: 'root',
+    // password: '',
+    // database: 'catalog_products'
 })
 
 const multer = require('multer');
