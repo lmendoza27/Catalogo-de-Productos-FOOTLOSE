@@ -8,6 +8,8 @@ const cors = require('cors');
 const Excel = require('exceljs'); 
 const PDFDocument = require('pdfkit');
 const nodemailer = require('nodemailer');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 app.use(cors());
 
@@ -32,6 +34,10 @@ const transporter = nodemailer.createTransport({
 });
 
 const db = mysql.createConnection({
+    //host: 'sql3.freemysqlhosting.net',
+    //user: 'sql3692502',
+    //password: 'B3n5sLruaB',
+    //database: 'sql3692502'
     host: 'localhost',
     user: 'root',
     password: '',
@@ -56,6 +62,7 @@ const storage = multer.diskStorage({
   const storage_post = multer.memoryStorage();
   const upload_post = multer({ storage: storage_post });
 
+/*  
 app.post('/login', (req, res) => {
 
     const sql = "SELECT r.role_id, p.permission_name FROM user u " +
@@ -77,14 +84,70 @@ app.post('/login', (req, res) => {
     })
 
 })
+*/
+
+app.post('/login', (req, res) => {
+    const username = req.body.user;
+    const password = req.body.password;
+
+    const sql = "SELECT u.id, u.password, r.role_id, p.permission_name FROM user u " +
+                "JOIN user_roles ur ON u.id = ur.user_id " +
+                "JOIN roles r ON ur.role_id = r.role_id " +
+                "JOIN role_permissions rp ON r.role_id = rp.role_id " +
+                "JOIN permissions p ON rp.permission_id = p.permission_id " +
+                "WHERE u.username = ?";
+
+    db.query(sql, [username], (err, data) => {
+        if (err) return res.json("Error");
+
+        if (data.length > 0) {
+            const user = data[0];
+            // Comparar la contraseña cifrada almacenada en la base de datos con la contraseña proporcionada por el usuario
+            bcrypt.compare(password, user.password, (err, result) => {
+                if (err) return res.json("Error");
+
+                if (result) {
+                    // Generar JWT
+                    const token = jwt.sign({ id: user.id, username: username }, 'secret_key', { expiresIn: '1h' });
+
+                    // Contraseña válida, devolver JWT y permisos del usuario
+                    const permissions = data.map(row => row.permission_name);
+                    return res.json({ status: "Correcto", token: token, permissions: permissions });
+                } else {
+                    // Contraseña incorrecta
+                    return res.json("Contraseña incorrecta");
+                }
+            });
+        } else {
+            return res.json("No hay registro");
+        }
+    });
+});
+
+app.post('/register', (req, res) => {
+    const username = req.body.user;
+    const password = req.body.password;
+
+    // Generar un hash de la contraseña usando bcrypt
+    bcrypt.hash(password, 10, (err, hash) => {
+        if (err) return res.json("Error al cifrar la contraseña");
+
+        const sql = "INSERT INTO user (username, password) VALUES (?, ?)";
+        db.query(sql, [username, hash], (err, result) => {
+            if (err) return res.json("Error al registrar el usuario");
+
+            return res.json("Usuario registrado correctamente");
+        });
+    });
+});
 
 app.get('/productos', (req, res) => {
     const sql = `SELECT p.idProducto, p.NombreProducto, m.NombreMarca, mo.NombreModelo, c.NombreColor, t.NombreTalla, p.Imagen, p.PrecioVenta
-                FROM Producto p
-                JOIN Marca m ON p.idMarca = m.idMarca
-                JOIN Modelo mo ON p.idModelo = mo.idModelo
-                JOIN Color c ON p.idColor = c.idColor
-                JOIN Talla t ON p.idTalla = t.idTalla
+                FROM producto p
+                JOIN marca m ON p.idMarca = m.idMarca
+                JOIN modelo mo ON p.idModelo = mo.idModelo
+                JOIN color c ON p.idColor = c.idColor
+                JOIN talla t ON p.idTalla = t.idTalla
                 ORDER BY p.idProducto DESC`;
 
     db.query(sql, (err, data) => {
@@ -92,17 +155,17 @@ app.get('/productos', (req, res) => {
             console.error(err);
             return res.status(500).json({ error: "Error al obtener los registros de productos" });
         }
-        
+
         return res.json(data);
     });
 });
 
 app.get('/detail_product', (req, res) => {
     const sql = {
-        marca: `SELECT idMarca, NombreMarca FROM Marca`,
-        modelo: `SELECT idModelo, NombreModelo FROM Modelo`,
-        color: `SELECT idColor, NombreColor FROM Color`,
-        talla: `SELECT idTalla, NombreTalla FROM Talla`
+        marca: `SELECT idMarca, NombreMarca FROM marca`,
+        modelo: `SELECT idModelo, NombreModelo FROM modelo`,
+        color: `SELECT idColor, NombreColor FROM color`,
+        talla: `SELECT idTalla, NombreTalla FROM talla`
     };
 
     const resultados = {};
@@ -153,7 +216,7 @@ app.post('/save_product', upload.single('imagen'), (req, res) => {
     }
 
     // Aquí puedes usar los datos del formulario y la imagen adjunta para guardar el producto en la base de datos
-    const sql = `INSERT INTO Producto (NombreProducto, idMarca, idModelo, idColor, idTalla, Imagen, PrecioVenta)
+    const sql = `INSERT INTO producto (NombreProducto, idMarca, idModelo, idColor, idTalla, Imagen, PrecioVenta)
                  VALUES (?, ?, ?, ?, ?, ?, ?)`;
 
     db.query(sql, [NombreProducto, idMarca, idModelo, idColor, idTalla, imagen.filename, PrecioVenta], (err, result) => {
@@ -177,7 +240,7 @@ app.post('/update_product', upload.single('imagen'), (req, res) => {
     }
 
     // Actualizar el producto en la base de datos
-    const sql = `UPDATE Producto 
+    const sql = `UPDATE producto 
                  SET NombreProducto=?, idMarca=?, idModelo=?, idColor=?, idTalla=?, PrecioVenta=?
                  ${imagen ? ', Imagen=?' : ''}
                  WHERE idProducto=?`;
@@ -221,7 +284,7 @@ app.delete('/producto/:id', (req, res) => {
         const nombreImagen = result[0].Imagen;
 
         // Consulta para eliminar el producto de la base de datos
-        const sqlEliminarProducto = 'DELETE FROM Producto WHERE idProducto = ?';
+        const sqlEliminarProducto = 'DELETE FROM producto WHERE idProducto = ?';
 
         // Ejecutar la consulta para eliminar el producto
         db.query(sqlEliminarProducto, [idProducto], (err, result) => {
@@ -252,11 +315,11 @@ app.get('/producto/:id', (req, res) => {
     const idProducto = req.params.id;
 
     const sql = `SELECT p.idProducto, p.NombreProducto, m.NombreMarca, mo.NombreModelo, c.NombreColor, t.NombreTalla, p.Imagen, p.PrecioVenta
-    FROM Producto p
-    JOIN Marca m ON p.idMarca = m.idMarca
-    JOIN Modelo mo ON p.idModelo = mo.idModelo
-    JOIN Color c ON p.idColor = c.idColor
-    JOIN Talla t ON p.idTalla = t.idTalla
+    FROM producto p
+    JOIN marca m ON p.idMarca = m.idMarca
+    JOIN modelo mo ON p.idModelo = mo.idModelo
+    JOIN color c ON p.idColor = c.idColor
+    JOIN talla t ON p.idTalla = t.idTalla
     WHERE idProducto = ?`;
 
     db.query(sql, [idProducto], (err, result) => {
@@ -277,11 +340,11 @@ app.get('/producto/:id', (req, res) => {
 
 app.get('/download_excel', (req, res) => {
     const sql = `SELECT p.idProducto, p.NombreProducto, m.NombreMarca, mo.NombreModelo, c.NombreColor, t.NombreTalla, p.Imagen, p.PrecioVenta
-                FROM Producto p
-                JOIN Marca m ON p.idMarca = m.idMarca
-                JOIN Modelo mo ON p.idModelo = mo.idModelo
-                JOIN Color c ON p.idColor = c.idColor
-                JOIN Talla t ON p.idTalla = t.idTalla`;
+                FROM producto p
+                JOIN marca m ON p.idMarca = m.idMarca
+                JOIN modelo mo ON p.idModelo = mo.idModelo
+                JOIN color c ON p.idColor = c.idColor
+                JOIN talla t ON p.idTalla = t.idTalla`;
 
     db.query(sql, (err, data) => {
         if (err) {
@@ -330,11 +393,11 @@ app.get('/ficha_tecnica/:id', (req, res) => {
     const idProducto = req.params.id;
 
     const sql = `SELECT p.idProducto, p.NombreProducto, m.NombreMarca, mo.NombreModelo, c.NombreColor, t.NombreTalla, p.Imagen, p.PrecioVenta
-    FROM Producto p
-    JOIN Marca m ON p.idMarca = m.idMarca
-    JOIN Modelo mo ON p.idModelo = mo.idModelo
-    JOIN Color c ON p.idColor = c.idColor
-    JOIN Talla t ON p.idTalla = t.idTalla
+    FROM producto p
+    JOIN marca m ON p.idMarca = m.idMarca
+    JOIN modelo mo ON p.idModelo = mo.idModelo
+    JOIN color c ON p.idColor = c.idColor
+    JOIN talla t ON p.idTalla = t.idTalla
     WHERE idProducto = ?`;
 
     db.query(sql, [idProducto], (err, result) => {
@@ -372,7 +435,7 @@ app.post('/quote_product', (req, res) => {
     const { idProducto, PrecioVenta, toPerson } = req.body;
 
     // Actualizar el precio del producto en la base de datos
-    const sql = `UPDATE Producto 
+    const sql = `UPDATE producto 
                  SET PrecioVenta=?
                  WHERE idProducto=?`;
 
@@ -429,7 +492,7 @@ app.post('/upload_products_excel', upload_post.single('file'), (req, res) => {
                 const PrecioVenta = row.getCell(7).value;
 
                 // Insertar los datos del producto en la base de datos
-                const sql = `INSERT INTO Producto (NombreProducto, idMarca, idModelo, idColor, idTalla, Imagen, PrecioVenta)
+                const sql = `INSERT INTO producto (NombreProducto, idMarca, idModelo, idColor, idTalla, Imagen, PrecioVenta)
                              VALUES (?, ?, ?, ?, ?, ?, ?)`;
                 const params = [NombreProducto, idMarca, idModelo, idColor, idTalla, Imagen, PrecioVenta];
 
