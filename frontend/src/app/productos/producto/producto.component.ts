@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ProductService } from '../../product.service';
+import { ConfigService } from '../../config.service';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -23,10 +24,7 @@ export class ProductoComponent implements OnInit {
 
   fileToUpload: File | null = null;
 
-  //private serverUrl = 'http://localhost:8081';
-  public serverUrl = 'https://catalogo-de-productos-footlose.onrender.com';
-
-  constructor(private productService: ProductService, private router: Router) {
+  constructor(private productService: ProductService, private router: Router, public configService: ConfigService) {
     const permissionsString = localStorage.getItem('permissions');
     if (permissionsString) {
       this.permissions = JSON.parse(permissionsString);
@@ -39,28 +37,48 @@ export class ProductoComponent implements OnInit {
       // Si no hay token en el localStorage, redirigir al usuario a la página de login
       this.router.navigate(['/login']);
     } else {
-      this.loadProducts();
-      this.productService.getListProducts().subscribe((data: any) => {
-        this.listProducts = data;
 
-        this.listProducts.marcas.forEach((marca: any) => {
-          this.selectedMarcas[marca.NombreMarca] = true;
-        });
+      try {
+        const tokenPayload = JSON.parse(atob(token.split('.')[1])); // Decodificar el payload del token
+        const currentTime = Math.floor(Date.now() / 1000); // Convertir a segundos
+        // console.log('El tiempo es: ' + tokenPayload.exp)
+        // console.log('El tiempo actual es:' + currentTime)
+        if (tokenPayload.exp < currentTime) {
 
-        this.listProducts.modelos.forEach((modelo: any) => {
-          this.selectedModelos[modelo.NombreModelo] = true;
-        });
+          localStorage.removeItem('token');
+          this.router.navigate(['/login']);
 
-        this.listProducts.colores.forEach((color: any) => {
-          this.selectedColores[color.NombreColor] = true;
-        });
-    
-        this.listProducts.tallas.forEach((talla: any) => {
-          this.selectedTallas[talla.NombreTalla] = true;
-        });
+        } else {
 
-      });
-      
+          this.loadProducts();
+          this.productService.getListProducts().subscribe((data: any) => {
+            this.listProducts = data;
+  
+            this.listProducts.marcas.forEach((marca: any) => {
+              this.selectedMarcas[marca.NombreMarca] = true;
+            });
+  
+            this.listProducts.modelos.forEach((modelo: any) => {
+              this.selectedModelos[modelo.NombreModelo] = true;
+            });
+  
+            this.listProducts.colores.forEach((color: any) => {
+              this.selectedColores[color.NombreColor] = true;
+            });
+        
+            this.listProducts.tallas.forEach((talla: any) => {
+              this.selectedTallas[talla.NombreTalla] = true;
+            });
+  
+          });
+
+        }
+
+      } catch (error) {
+        console.error('Error al decodificar el token:', error);
+        // Manejar el error como desees
+      }
+
     }
   }
 
@@ -211,7 +229,7 @@ export class ProductoComponent implements OnInit {
                 </select>
               </div>
               <div>
-                <img src="${ this.serverUrl }/uploads/${ data.Imagen }" alt="Imagen del producto" width="100">
+                <img src="${ this.configService.getServerUrl() }/uploads/${ data.Imagen }" alt="Imagen del producto" width="100">
                 <br><label for="nombre">Imagen Producto:</label>
                 <input type="file" id="product_image" class="swal2-input">
               </div>
@@ -508,11 +526,12 @@ export class ProductoComponent implements OnInit {
   }
 
   fallbackImage(event: any) {
-    event.target.src = `${this.serverUrl}/uploads/no-image.jpg`;
+    const serverUrl = this.configService.getServerUrl();
+    event.target.src = `${serverUrl}/uploads/no-image.jpg`;
   }
 
   setServerUrl(url: string) {
-    this.serverUrl = url; // Método para establecer la URL del servidor
+    this.configService.setServerUrl(url); // Método para establecer la URL del servidor
   }
 
 }

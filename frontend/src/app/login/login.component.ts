@@ -14,12 +14,39 @@ export class LoginComponent {
 
   constructor(private loginService: LoginService, private router: Router) { }
 
+  /*
   ngOnInit(): void {
     // Verificar si existe el token en el localStorage
     const token = localStorage.getItem('token');
     if (token) {
       // Si existe, redirigir al usuario a la ruta /productos
       this.router.navigate(['/productos']);
+    }
+  }
+  */
+
+  ngOnInit(): void {
+    // Verificar si existe el token en el localStorage
+    const token = localStorage.getItem('token');
+    if (token) {
+      // Si existe, verificar si ha expirado
+      try {
+        const tokenPayload = JSON.parse(atob(token.split('.')[1])); // Decodificar el payload del token
+        const currentTime = Math.floor(Date.now() / 1000); // Convertir a segundos
+        // console.log('El tiempo es: ' + tokenPayload.exp)
+        // console.log('El tiempo actual es:' + currentTime)
+        if (tokenPayload.exp < currentTime) {
+          // Si el token ha expirado, eliminarlo y redirigir al usuario al inicio de sesión
+          localStorage.removeItem('token');
+          this.router.navigate(['/login']);
+        } else {
+          // Si el token aún es válido, redirigir al usuario a la ruta /productos
+          this.router.navigate(['/productos']);
+        }
+      } catch (error) {
+        console.error('Error al decodificar el token:', error);
+        // Manejar el error como desees
+      }
     }
   }
 

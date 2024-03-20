@@ -1,25 +1,18 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { ConfigService } from './config.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LoginService {
 
-  // private serverUrl = 'http://localhost:8081';
-  // private serverUrl = 'https://310f-2001-1388-ae0-7600-5dc6-1450-162b-9748.ngrok-free.app';
-  private serverUrl = 'https://catalogo-de-productos-footlose.onrender.com';
-
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private configService: ConfigService) { }
 
   login(credentials: any): Observable<any> {
-    //return this.http.post<any>('http://localhost:8081/login', credentials);
-    return this.http.post<any>(`${this.serverUrl}/login`, credentials);
-  }
-
-  setServerUrl(url: string) {
-    this.serverUrl = url; // Método para establecer la URL del servidor
+    const serverUrl = this.configService.getServerUrl();
+    return this.http.post<any>(`${serverUrl}/login`, credentials);
   }
 
 }

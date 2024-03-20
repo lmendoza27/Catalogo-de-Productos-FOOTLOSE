@@ -8,6 +8,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { LoginComponent } from './login/login.component';
 import { ProductoComponent } from './productos/producto/producto.component';
+import { ConfigService } from './config.service';
 import Swal from 'sweetalert2';
 
 @NgModule({
@@ -23,7 +24,9 @@ import Swal from 'sweetalert2';
     HttpClientModule,
     CommonModule 
   ],
-  providers: [],
+  providers: [
+    ConfigService 
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
