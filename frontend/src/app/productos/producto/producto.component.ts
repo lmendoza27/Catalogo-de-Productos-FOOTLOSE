@@ -198,6 +198,7 @@ export class ProductoComponent implements OnInit {
         // Llamar a getListProducts para obtener los datos necesarios
         this.productService.getListProducts().subscribe((listData: any) => {
           if (listData && Object.keys(listData).length > 0) {
+            console.log(listData)
             // Generar el formulario con los datos del producto y las opciones de los selectores
             const selectHtml = `
               <div>
@@ -207,25 +208,25 @@ export class ProductoComponent implements OnInit {
               <div>
                 <label for="marca">Marca:</label><br>
                 <select id="marca" class="swal2-select">
-                  ${this.generateOptions(listData.marcas, data.idMarca, 'idMarca', 'NombreMarca')}
+                ${this.generateOptions(listData.marcas, data.NombreMarca, 'idMarca', 'NombreMarca')}
                 </select>
               </div>
               <div>
                 <label for="modelo">Modelo:</label><br>
                 <select id="modelo" class="swal2-select">
-                  ${this.generateOptions(listData.modelos, data.idModelo, 'idModelo', 'NombreModelo')}
+                ${this.generateOptions(listData.modelos, data.NombreModelo, 'idModelo', 'NombreModelo')}
                 </select>
               </div>
               <div>
                 <label for="color">Color:</label><br>
                 <select id="color" class="swal2-select">
-                  ${this.generateOptions(listData.colores, data.idColor, 'idColor', 'NombreColor')}
+                ${this.generateOptions(listData.colores, data.NombreColor, 'idColor', 'NombreColor')}
                 </select>
               </div>
               <div>
                 <label for="talla">Talla:</label><br>
                 <select id="talla" class="swal2-select">
-                  ${this.generateOptions(listData.tallas, data.idTalla, 'idTalla', 'NombreTalla')}
+                ${this.generateOptions(listData.tallas, data.NombreTalla, 'idTalla', 'NombreTalla')}
                 </select>
               </div>
               <div>
@@ -296,8 +297,11 @@ export class ProductoComponent implements OnInit {
     );
   }
 
-  private generateOptions(data: any[], selectedId: any, valueKey: string, textKey: string): string {
+  /*private generateOptions(data: any[], selectedId: any, valueKey: string, textKey: string): string {
     return data.map((item: any) => `<option value="${item[valueKey]}" ${item[valueKey] === selectedId ? 'selected' : ''}>${item[textKey]}</option>`).join('');
+  }*/
+  generateOptions(data: any[], selectedName: string, idKey: string, textKey: string): string {
+    return data.map((item: any) => `<option value="${item[idKey]}" ${item[textKey] === selectedName ? 'selected' : ''}>${item[textKey]}</option>`).join('');
   }
 
   deleteProduct(productId: number): void {
