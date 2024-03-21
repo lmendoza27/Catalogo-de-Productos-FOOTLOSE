@@ -38,14 +38,14 @@ const transporter = nodemailer.createTransport({
 });
 
 const db = mysql.createConnection({
-    host: 'sql3.freemysqlhosting.net',
-    user: 'sql3692502',
-    password: 'B3n5sLruaB',
-    database: 'sql3692502'
-    // host: 'localhost',
-    // user: 'root',
-    // password: '',
-    // database: 'catalog_products'
+    // host: 'sql3.freemysqlhosting.net',
+    // user: 'sql3692502',
+    // password: 'B3n5sLruaB',
+    // database: 'sql3692502'
+    host: 'localhost',
+    user: 'root',
+    password: '',
+    database: 'catalog_products'
 })
 
 const multer = require('multer');
