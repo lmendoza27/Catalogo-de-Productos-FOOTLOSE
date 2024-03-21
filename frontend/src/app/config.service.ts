@@ -5,8 +5,8 @@ import { Injectable } from '@angular/core';
 })
 export class ConfigService {
 
-  //private serverUrl = 'https://catalogo-de-productos-footlose.onrender.com';
-  private serverUrl = 'http://localhost:8081';
+  private serverUrl = 'https://catalogo-de-productos-footlose.onrender.com';
+  // private serverUrl = 'http://localhost:8081';
 
   constructor() { }
 
