@@ -10,8 +10,12 @@ const PDFDocument = require('pdfkit');
 const nodemailer = require('nodemailer');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const swaggerUi = require('swagger-ui-express');
+const swaggerJsdoc = require('swagger-jsdoc');
 
 app.use(cors());
+
+const port = 8081;
 
 // Utiliza body-parser para analizar solicitudes con cuerpo JSON
 app.use(bodyParser.json());
@@ -62,6 +66,23 @@ const storage = multer.diskStorage({
   const storage_post = multer.memoryStorage();
   const upload_post = multer({ storage: storage_post });
 
+  // Configuración de Swagger
+    const options = {
+        definition: {
+        openapi: '3.0.0',
+        info: {
+            title: 'API de Catálogo de Productos',
+            version: '1.0.0',
+            description: 'API para obtener productos de un catálogo',
+        },
+        },
+        // Rutas para los archivos de especificación de Swagger
+        apis: ['./server.js'], // Ruta de tu archivo server.js
+    };
+  
+  const specs = swaggerJsdoc(options);
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
+
 /*  
 app.post('/login', (req, res) => {
 
@@ -86,6 +107,50 @@ app.post('/login', (req, res) => {
 })
 */
 
+/**
+ * @swagger
+ * /login:
+ *   post:
+ *     summary: Inicia sesión de usuario
+ *     description: Verifica las credenciales del usuario y devuelve un token de autenticación JWT si las credenciales son válidas.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               user:
+ *                 type: string
+ *                 description: Nombre de usuario
+ *               password:
+ *                 type: string
+ *                 description: Contraseña del usuario
+ *     responses:
+ *       200:
+ *         description: Éxito al iniciar sesión
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   description: Estado del inicio de sesión
+ *                 token:
+ *                   type: string
+ *                   description: Token de autenticación JWT
+ *                 permissions:
+ *                   type: array
+ *                   description: Permisos del usuario
+ *                   items:
+ *                     type: string
+ *                     description: Nombre del permiso
+ *       400:
+ *         description: Credenciales incorrectas
+ *       500:
+ *         description: Error interno del servidor
+ */
 app.post('/login', (req, res) => {
     const username = req.body.user;
     const password = req.body.password;
@@ -124,6 +189,34 @@ app.post('/login', (req, res) => {
     });
 });
 
+/**
+ * @swagger
+ * /register:
+ *   post:
+ *     summary: Registrar un nuevo usuario
+ *     description: Registra un nuevo usuario en la base de datos.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               user:
+ *                 type: string
+ *                 description: Nombre de usuario.
+ *               password:
+ *                 type: string
+ *                 description: Contraseña del usuario.
+ *             required:
+ *               - user
+ *               - password
+ *     responses:
+ *       200:
+ *         description: Usuario registrado correctamente
+ *       400:
+ *         description: Error al registrar el usuario
+ */
 app.post('/register', (req, res) => {
     const username = req.body.user;
     const password = req.body.password;
@@ -141,6 +234,47 @@ app.post('/register', (req, res) => {
     });
 });
 
+/**
+ * @swagger
+ * /productos:
+ *   get:
+ *     summary: Obtiene todos los productos
+ *     description: Retorna una lista de todos los productos disponibles en el catálogo.
+ *     responses:
+ *       200:
+ *         description: Éxito al obtener los productos
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   idProducto:
+ *                     type: integer
+ *                     description: ID del producto
+ *                   NombreProducto:
+ *                     type: string
+ *                     description: Nombre del producto
+ *                   NombreMarca:
+ *                     type: string
+ *                     description: Nombre de la marca del producto
+ *                   NombreModelo:
+ *                     type: string
+ *                     description: Nombre del modelo del producto
+ *                   NombreColor:
+ *                     type: string
+ *                     description: Nombre del color del producto
+ *                   NombreTalla:
+ *                     type: string
+ *                     description: Nombre de la talla del producto
+ *                   Imagen:
+ *                     type: string
+ *                     description: Nombre del archivo de imagen del producto
+ *                   PrecioVenta:
+ *                     type: number
+ *                     description: Precio de venta del producto
+ */
 app.get('/productos', (req, res) => {
     const sql = `SELECT p.idProducto, p.NombreProducto, m.NombreMarca, mo.NombreModelo, c.NombreColor, t.NombreTalla, p.Imagen, p.PrecioVenta
                 FROM producto p
@@ -160,6 +294,69 @@ app.get('/productos', (req, res) => {
     });
 });
 
+/**
+ * @swagger
+ * /detail_product:
+ *   get:
+ *     summary: Obtiene detalles de productos
+ *     description: Retorna detalles de productos como marcas, modelos, colores y tallas disponibles.
+ *     responses:
+ *       200:
+ *         description: Éxito al obtener detalles de productos
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 marcas:
+ *                   type: array
+ *                   description: Lista de marcas disponibles.
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       idMarca:
+ *                         type: integer
+ *                         description: ID de la marca.
+ *                       NombreMarca:
+ *                         type: string
+ *                         description: Nombre de la marca.
+ *                 modelos:
+ *                   type: array
+ *                   description: Lista de modelos disponibles.
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       idModelo:
+ *                         type: integer
+ *                         description: ID del modelo.
+ *                       NombreModelo:
+ *                         type: string
+ *                         description: Nombre del modelo.
+ *                 colores:
+ *                   type: array
+ *                   description: Lista de colores disponibles.
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       idColor:
+ *                         type: integer
+ *                         description: ID del color.
+ *                       NombreColor:
+ *                         type: string
+ *                         description: Nombre del color.
+ *                 tallas:
+ *                   type: array
+ *                   description: Lista de tallas disponibles.
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       idTalla:
+ *                         type: integer
+ *                         description: ID de la talla.
+ *                       NombreTalla:
+ *                         type: string
+ *                         description: Nombre de la talla.
+ */
 app.get('/detail_product', (req, res) => {
     const sql = {
         marca: `SELECT idMarca, NombreMarca FROM marca`,
@@ -206,6 +403,73 @@ app.get('/detail_product', (req, res) => {
     });
 });
 
+/**
+ * @swagger
+ * /save_product:
+ *   post:
+ *     summary: Guarda un nuevo producto
+ *     description: Guarda un nuevo producto en la base de datos junto con su imagen adjunta.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               NombreProducto:
+ *                 type: string
+ *                 description: Nombre del producto.
+ *               idMarca:
+ *                 type: integer
+ *                 description: ID de la marca del producto.
+ *               idModelo:
+ *                 type: integer
+ *                 description: ID del modelo del producto.
+ *               idColor:
+ *                 type: integer
+ *                 description: ID del color del producto.
+ *               idTalla:
+ *                 type: integer
+ *                 description: ID de la talla del producto.
+ *               PrecioVenta:
+ *                 type: number
+ *                 description: Precio de venta del producto.
+ *               imagen:
+ *                 type: string
+ *                 format: binary
+ *                 description: Imagen del producto.
+ *     responses:
+ *       201:
+ *         description: Producto insertado exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Mensaje de éxito.
+ *       400:
+ *         description: Se requiere una imagen para el producto
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   description: Mensaje de error.
+ *       500:
+ *         description: Error al insertar el producto en la base de datos
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   description: Mensaje de error.
+ */
 app.post('/save_product', upload.single('imagen'), (req, res) => {
     const { NombreProducto, idMarca, idModelo, idColor, idTalla, PrecioVenta } = req.body;
     const imagen = req.file; // Acceder al archivo adjunto
@@ -229,6 +493,76 @@ app.post('/save_product', upload.single('imagen'), (req, res) => {
     });
 });
 
+/**
+ * @swagger
+ * /update_product:
+ *   post:
+ *     summary: Actualiza un producto existente
+ *     description: Actualiza un producto existente en la base de datos, incluyendo la posibilidad de cambiar la imagen adjunta.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               idProducto:
+ *                 type: integer
+ *                 description: ID del producto a actualizar.
+ *               NombreProducto:
+ *                 type: string
+ *                 description: Nombre actualizado del producto.
+ *               idMarca:
+ *                 type: integer
+ *                 description: ID de la marca actualizada del producto.
+ *               idModelo:
+ *                 type: integer
+ *                 description: ID del modelo actualizado del producto.
+ *               idColor:
+ *                 type: integer
+ *                 description: ID del color actualizado del producto.
+ *               idTalla:
+ *                 type: integer
+ *                 description: ID de la talla actualizada del producto.
+ *               PrecioVenta:
+ *                 type: number
+ *                 description: Precio de venta actualizado del producto.
+ *               imagen:
+ *                 type: string
+ *                 format: binary
+ *                 description: Nueva imagen del producto (opcional).
+ *     responses:
+ *       200:
+ *         description: Producto actualizado exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Mensaje de éxito.
+ *       400:
+ *         description: Se requiere una imagen para el producto
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   description: Mensaje de error.
+ *       500:
+ *         description: Error al actualizar el producto en la base de datos
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   description: Mensaje de error.
+ */
 app.post('/update_product', upload.single('imagen'), (req, res) => {
     const { idProducto, NombreProducto, idMarca, idModelo, idColor, idTalla, PrecioVenta } = req.body;
     let imagen = req.body.Imagen; // Conserva la imagen existente por defecto
@@ -264,6 +598,51 @@ app.post('/update_product', upload.single('imagen'), (req, res) => {
     });
 });
 
+/**
+ * @swagger
+ * /producto/{id}:
+ *   delete:
+ *     summary: Elimina un producto existente
+ *     description: Elimina un producto existente de la base de datos y elimina la imagen asociada del sistema de archivos, si existe.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: ID del producto que se desea eliminar.
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Producto eliminado correctamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Mensaje de éxito.
+ *       404:
+ *         description: Producto no encontrado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   description: Mensaje de error.
+ *       500:
+ *         description: Error al eliminar el producto o la imagen asociada
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   description: Mensaje de error.
+ */
 app.delete('/producto/:id', (req, res) => {
     const idProducto = req.params.id;
 
@@ -311,6 +690,72 @@ app.delete('/producto/:id', (req, res) => {
     });
 });
 
+/**
+ * @swagger
+ * /producto/{id}:
+ *   get:
+ *     summary: Obtiene los detalles de un producto por su ID
+ *     description: Obtiene los detalles de un producto específico de la base de datos según su ID.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: ID del producto del que se desean obtener los detalles.
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Detalles del producto obtenidos correctamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 idProducto:
+ *                   type: integer
+ *                   description: ID del producto.
+ *                 NombreProducto:
+ *                   type: string
+ *                   description: Nombre del producto.
+ *                 NombreMarca:
+ *                   type: string
+ *                   description: Nombre de la marca del producto.
+ *                 NombreModelo:
+ *                   type: string
+ *                   description: Nombre del modelo del producto.
+ *                 NombreColor:
+ *                   type: string
+ *                   description: Nombre del color del producto.
+ *                 NombreTalla:
+ *                   type: string
+ *                   description: Nombre de la talla del producto.
+ *                 Imagen:
+ *                   type: string
+ *                   description: Nombre del archivo de imagen del producto.
+ *                 PrecioVenta:
+ *                   type: number
+ *                   description: Precio de venta del producto.
+ *       404:
+ *         description: Producto no encontrado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   description: Mensaje de error.
+ *       500:
+ *         description: Error al obtener el producto
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   description: Mensaje de error.
+ */
 app.get('/producto/:id', (req, res) => {
     const idProducto = req.params.id;
 
@@ -338,6 +783,32 @@ app.get('/producto/:id', (req, res) => {
     });
 });
 
+/**
+ * @swagger
+ * /download_excel:
+ *   get:
+ *     summary: Descarga los detalles de los productos en formato Excel
+ *     description: Descarga los detalles de todos los productos de la base de datos en formato Excel.
+ *     responses:
+ *       200:
+ *         description: Archivo Excel descargado correctamente
+ *         content:
+ *           application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *               description: Archivo Excel descargado.
+ *       500:
+ *         description: Error al obtener los registros de productos o al escribir el archivo de Excel
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   description: Mensaje de error.
+ */
 app.get('/download_excel', (req, res) => {
     const sql = `SELECT p.idProducto, p.NombreProducto, m.NombreMarca, mo.NombreModelo, c.NombreColor, t.NombreTalla, p.Imagen, p.PrecioVenta
                 FROM producto p
@@ -389,6 +860,49 @@ app.get('/download_excel', (req, res) => {
     });
 });
 
+/**
+ * @swagger
+ * /ficha_tecnica/{id}:
+ *   get:
+ *     summary: Genera y descarga la ficha técnica de un producto en formato PDF
+ *     description: Genera y descarga la ficha técnica de un producto en formato PDF.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: ID del producto del cual se desea generar la ficha técnica.
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Ficha técnica generada y descargada correctamente
+ *         content:
+ *           application/pdf:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *               description: Archivo PDF de la ficha técnica.
+ *       404:
+ *         description: Producto no encontrado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   description: Mensaje de error.
+ *       500:
+ *         description: Error al obtener el producto o al generar la ficha técnica
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   description: Mensaje de error.
+ */
 app.get('/ficha_tecnica/:id', (req, res) => {
     const idProducto = req.params.id;
 
@@ -431,6 +945,54 @@ app.get('/ficha_tecnica/:id', (req, res) => {
     });
 });
 
+/**
+ * @swagger
+ * /quote_product:
+ *   post:
+ *     summary: Actualiza el precio de un producto y envía una notificación por correo electrónico
+ *     description: Actualiza el precio de un producto en la base de datos y envía una notificación por correo electrónico al destinatario especificado.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               idProducto:
+ *                 type: integer
+ *                 description: ID del producto que se desea actualizar.
+ *               PrecioVenta:
+ *                 type: number
+ *                 description: Nuevo precio de venta del producto.
+ *               toPerson:
+ *                 type: string
+ *                 description: Dirección de correo electrónico del destinatario para enviar la notificación.
+ *             example:
+ *               idProducto: 1
+ *               PrecioVenta: 100
+ *               toPerson: example@example.com
+ *     responses:
+ *       200:
+ *         description: Precio del producto actualizado exitosamente y notificación enviada
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Mensaje de confirmación.
+ *       500:
+ *         description: Error al actualizar el precio del producto o al enviar la notificación por correo electrónico
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   description: Mensaje de error.
+ */
 app.post('/quote_product', (req, res) => {
     const { idProducto, PrecioVenta, toPerson } = req.body;
 
@@ -468,6 +1030,54 @@ app.post('/quote_product', (req, res) => {
     });
 });
 
+/**
+ * @swagger
+ * /upload_products_excel:
+ *   post:
+ *     summary: Carga datos de productos desde un archivo Excel
+ *     description: Carga datos de productos desde un archivo Excel y los inserta en la base de datos.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               file:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Datos de productos insertados correctamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Mensaje de confirmación.
+ *       400:
+ *         description: No se ha proporcionado ningún archivo
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   description: Mensaje de error.
+ *       500:
+ *         description: Error al cargar o procesar el archivo Excel
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   description: Mensaje de error.
+ */
 app.post('/upload_products_excel', upload_post.single('file'), (req, res) => {
     if (!req.file) {
         return res.status(400).json({ error: "No se ha proporcionado ningún archivo" });
@@ -511,6 +1121,6 @@ app.post('/upload_products_excel', upload_post.single('file'), (req, res) => {
         });
 });
 
-app.listen(8081, () => {
+app.listen(port, () => {
     console.log("Escuchando...");
 })
